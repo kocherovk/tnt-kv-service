@@ -1,0 +1,10 @@
+version: '2'
+services:
+  kv-tnt:
+    build: tnt
+  kv-nginx:
+    depends_on:
+      - kv-tnt
+    build: nginx
+    ports:
+      - "8000:80"

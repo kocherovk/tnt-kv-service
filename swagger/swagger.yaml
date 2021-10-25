@@ -1,0 +1,108 @@
+swagger: "2.0"
+info:
+  description: "This is a simple tarantool json key value storage with basic rate limiter"
+  version: "1.0.0"
+  title: "Tarantool json key value storage service"
+host: "127.0.0.1:8000"
+basePath: "/"
+tags:
+  - name: "kv"
+    description: "JSON key value api"
+schemes:
+  - "http"
+paths:
+  /kv:
+    post:
+      tags:
+        - "kv"
+      summary: "Create new key value pair"
+      description: "Associates key with value. Keys must be unique!"
+      operationId: "create"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Key value pair in JSON"
+          required: true
+          schema:
+            type: object
+            properties:
+              key:
+                type: string
+              value:
+                type: object
+                example: {"some": "json"}
+      responses:
+        "409":
+          description: "Key already exists"
+  /kv/{key}:
+    get:
+      tags:
+        - "kv"
+      summary: "Get value"
+      description: "Returns JSON value associated with key {key}"
+      operationId: "get"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "key"
+          description: "Key"
+          required: true
+          type: "string"
+      responses:
+        "404":
+          description: "Unknown key"
+    put:
+      tags:
+        - "kv"
+      summary: "Update value"
+      description: "Updates JSON value associated with key {key}"
+      operationId: "update"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "key"
+          description: "Key"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          description: "Value"
+          required: true
+          schema:
+            type: object
+            properties:
+              value:
+                type: object
+                example: {"some": "json"}
+      responses:
+        "404":
+          description: "Unknown key"
+    delete:
+      tags:
+        - "kv"
+      summary: "Delete key value pair"
+      description: "Removes key value pair associated with key {key}"
+      operationId: "delete"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "key"
+          description: "Key"
+          required: true
+          type: "string"
+      responses:
+        "404":
+          description: "Unknown key"

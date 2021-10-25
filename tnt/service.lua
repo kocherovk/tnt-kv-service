@@ -3,14 +3,14 @@ local string = require('string')
 local json = require('json')
 
 box.cfg{listen=3301}
+kv.init()
 
 function handle(request)
     key = string.split(request.uri, '/')[3]
 
     if request.method == "POST" then
         body = json.decode(request.body)
-        kv.create(body.key, body.value)
-        return "OK"
+        return kv.create(body.key, body.value)
     end
 
     if request.method == "GET" then
@@ -19,12 +19,10 @@ function handle(request)
 
     if request.method == "PUT" then
         body = json.decode(request.body)
-        kv.update(key, body.value)
-        return "OK"
+        return kv.update(key, body.value)
     end
 
     if request.method == "DELETE" then
-        kv.delete(key)
-        return "OK"
+        return kv.delete(key)
     end
 end

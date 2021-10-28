@@ -1,28 +1,77 @@
 local kv = require('kv')
 local string = require('string')
 local json = require('json')
+local log = require("log")
 
 box.cfg{listen=3301}
-kv.init()
+kv:init()
+
+local RESULT = {
+    OK = {200, 'ok'},
+    NOT_FOUND = {404, "not found"}
+}
+
+function create(key, value)
+    fail, err = kv:create(key, value)
+
+    if fail and err == kv.errors.DUPLICATE then
+        return { 409, "key '" .. key .. "' already exists" }
+    end
+
+    return RESULT.OK
+end
+
+
+function read(key)
+    result = kv:read(key)
+
+    if result then
+        return { 200, json.decode(result) }
+    else
+        return RESULT.NOT_FOUND
+    end
+end
+
+function update(key, value)
+    fail, err = kv:update(key, value)
+
+    if fail and err == kv.errors.NOT_FOUND then
+        return RESULT.NOT_FOUND
+    end
+
+    return RESULT.OK
+end
+
+function delete(key)
+    fail, err =  kv:delete(key)
+
+    if fail and err == kv.errors.NOT_FOUND then
+        return RESULT.NOT_FOUND
+    end
+
+    return RESULT.OK
+end
 
 function handle(request)
+    log.info('Accepted request ' .. request.method .. " " ..  request.uri)
     key = string.split(request.uri, '/')[3]
 
+    body = nil
+    if request.body then
+        ok, result = pcall(json.decode, request.body)
+        if not ok then
+            return { 400, result }
+        end
+        body = result
+    end
+
     if request.method == "POST" then
-        body = json.decode(request.body)
-        return kv.create(body.key, body.value)
-    end
-
-    if request.method == "GET" then
-        return kv.read(key)
-    end
-
-    if request.method == "PUT" then
-        body = json.decode(request.body)
-        return kv.update(key, body.value)
-    end
-
-    if request.method == "DELETE" then
-        return kv.delete(key)
+        return create(body.key, json.encode(body.value))
+    elseif request.method == "GET" then
+        return read(key)
+    elseif request.method == "PUT" then
+        return update(key, json.encode(body.value))
+    elseif request.method == "DELETE" then
+        return delete(key)
     end
 end

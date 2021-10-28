@@ -2,14 +2,25 @@ local kv = require('kv')
 local string = require('string')
 local json = require('json')
 local log = require("log")
-
-box.cfg{listen=3301}
-kv:init()
+local RateLimiter = require("rate-limiter")
 
 local RESULT = {
     OK = {200, 'ok'},
     NOT_FOUND = {404, "not found"}
 }
+
+box.cfg{listen=3301}
+kv:init()
+
+local limit = os.getenv("RATE_LIMIT")
+if limit == nil then
+    limit = 60
+else
+    limit = tonumber(limit)
+end
+
+local rl = RateLimiter.new(2)
+
 
 function create(key, value)
     fail, err = kv:create(key, value)
@@ -53,6 +64,7 @@ function delete(key)
 end
 
 function handle(request)
+    RateLimiter.inc(rl)
     log.info('Accepted request ' .. request.method .. " " ..  request.uri)
     key = string.split(request.uri, '/')[3]
 

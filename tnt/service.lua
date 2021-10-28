@@ -64,7 +64,11 @@ function delete(key)
 end
 
 function handle(request)
-    RateLimiter.inc(rl)
+    fail = RateLimiter.inc(rl)
+    if fail then
+        return { 429, "rate limit exceeded" }
+    end
+
     log.info('Accepted request ' .. request.method .. " " ..  request.uri)
     key = string.split(request.uri, '/')[3]
 

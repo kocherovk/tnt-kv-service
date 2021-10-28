@@ -12,7 +12,7 @@ local rateLimiter = {
 
         if rateLimiter.check_timestamp == current_timestamp then
             if rateLimiter.current + 1 > rateLimiter.limit then
-                error("rate limit exceeded")
+                return true
             end
 
             rateLimiter.current = rateLimiter.current + 1
@@ -20,6 +20,8 @@ local rateLimiter = {
             rateLimiter.current = 1
             rateLimiter.check_timestamp = current_timestamp
         end
+
+        return false
     end
 }
 

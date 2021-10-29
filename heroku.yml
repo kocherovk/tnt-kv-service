@@ -1,5 +1,0 @@
-build:
-  docker:
-    web: nginx/Dockerfile
-    kv-tnt: tnt/Dockerfile
-    swagger-ui: swagger/Dockerfile

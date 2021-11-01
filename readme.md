@@ -21,7 +21,7 @@ endpoint
 http://ec2-13-53-199-37.eu-north-1.compute.amazonaws.com/kv/some-key
 
 
-## How to test rate limiter
+###  How to test rate limiter
 Run 
 ```tarantool test-rate-limiter.lua```
 see `tnt/test-rate-limiter.lua`

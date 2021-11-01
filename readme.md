@@ -26,4 +26,4 @@ Run
 ```
 tarantool test-rate-limiter.lua
 ```
-see `tnt/test-rate-limiter.lua`
+see `tnt/test-rate-limiter.lua` for more details
